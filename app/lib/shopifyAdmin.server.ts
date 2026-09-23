@@ -139,6 +139,7 @@ export type AdminTrackedOrder = {
 export type AdminOrderDetails = {
   id: string;
   name: string;
+  tags: string[];
   confirmationNumber: string;
   createdAt: string;
   displayFinancialStatus: string;
@@ -509,6 +510,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
     order: {
       id: string;
       name: string;
+      tags: string[];
       confirmationNumber: string | null;
       createdAt: string;
       displayFinancialStatus: string;
@@ -585,6 +587,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
         order(id: $id) {
           id
           name
+          tags
           confirmationNumber
           createdAt
           displayFinancialStatus
@@ -664,6 +667,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
   return {
     id: data.order.id,
     name: data.order.name,
+    tags: data.order.tags ?? [],
     confirmationNumber: data.order.confirmationNumber || '',
     createdAt: data.order.createdAt,
     displayFinancialStatus: data.order.displayFinancialStatus,
