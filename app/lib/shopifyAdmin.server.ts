@@ -72,39 +72,6 @@ export async function isAdminCustomer(env: Env, customerId: string) {
   return tags.includes('admin') || tags.includes('administrador');
 }
 
-export async function addCustomerTag(env: Env, customerId: string, tag: string) {
-  const data = await shopifyAdminGraphql<{
-    tagsAdd: {
-      node: { id: string } | null;
-      userErrors: Array<{ message: string }>;
-    };
-  }>(
-    env,
-    `
-      mutation AddCustomerTag($id: ID!, $tags: [String!]!) {
-        tagsAdd(id: $id, tags: $tags) {
-          node {
-            id
-          }
-          userErrors {
-            message
-          }
-        }
-      }
-    `,
-    {
-      id: customerId,
-      tags: [tag],
-    },
-  );
-
-  if (data.tagsAdd.userErrors.length > 0) {
-    throw new Error(data.tagsAdd.userErrors[0]?.message || 'No se pudo agregar el tag');
-  }
-
-  return data.tagsAdd.node?.id ?? null;
-}
-
 export type AdminOrderSummary = {
   id: string;
   name: string;
