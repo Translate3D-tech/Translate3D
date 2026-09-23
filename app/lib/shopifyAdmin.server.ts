@@ -12,6 +12,72 @@ type AdminGraphqlResponse<T> = {
   errors?: Array<{ message: string }>;
 };
 
+type AdminTokenResponse = {
+  access_token?: string;
+  expires_in?: number;
+};
+
+const adminTokenCache = new Map<string, { token: string; expiresAt: number }>();
+const adminTokenRequests = new Map<string, Promise<string>>();
+
+async function getAdminAccessToken(env: Env, domain: string): Promise<string> {
+  const envValues = env as unknown as Record<string, string | undefined>;
+  if (envValues.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
+    return envValues.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+  }
+
+  const clientId = envValues.SHOPIFY_ADMIN_API_CLIENT_ID;
+  const clientSecret = envValues.SHOPIFY_ADMIN_API_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error('Shopify Admin API no esta configurada en env');
+  }
+  if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(domain)) {
+    throw new Error('Shopify Admin API requiere el dominio myshopify.com de la tienda');
+  }
+
+  const cacheKey = `${domain}:${clientId}`;
+  const cached = adminTokenCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.token;
+  }
+
+  const pending = adminTokenRequests.get(cacheKey);
+  if (pending) return pending;
+
+  const request = (async () => {
+    const response = await fetch(`https://${domain}/admin/oauth/access_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Shopify Admin API no pudo autenticarse (${response.status})`);
+    }
+
+    const payload = (await response.json()) as AdminTokenResponse;
+    if (!payload.access_token || !payload.expires_in) {
+      throw new Error('Shopify Admin API devolvio una credencial invalida');
+    }
+
+    adminTokenCache.set(cacheKey, {
+      token: payload.access_token,
+      expiresAt: Date.now() + Math.max(payload.expires_in - 300, 0) * 1000,
+    });
+    return payload.access_token;
+  })();
+
+  adminTokenRequests.set(cacheKey, request);
+  try {
+    return await request;
+  } finally {
+    adminTokenRequests.delete(cacheKey);
+  }
+}
+
 export async function shopifyAdminGraphql<TData>(
   env: Env,
   query: string,
@@ -19,12 +85,13 @@ export async function shopifyAdminGraphql<TData>(
 ): Promise<TData> {
   const envValues = env as unknown as Record<string, string | undefined>;
   const domain = normalizeDomain(envValues.SHOPIFY_STORE_DOMAIN || env.PUBLIC_STORE_DOMAIN);
-  const token = envValues.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
-  const apiVersion = envValues.SHOPIFY_ADMIN_API_VERSION || '2025-01';
+  const apiVersion = envValues.SHOPIFY_ADMIN_API_VERSION || '2026-01';
 
-  if (!domain || !token) {
+  if (!domain) {
     throw new Error('Shopify Admin API no esta configurada en env');
   }
+
+  const token = await getAdminAccessToken(env, domain);
 
   const response = await fetch(`https://${domain}/admin/api/${apiVersion}/graphql.json`, {
     method: 'POST',
@@ -1038,56 +1105,70 @@ export async function updateAdminProduct(
       );
     }
 
-    // Update inventory if locationId and quantity are provided
     if (input.locationId && input.inventoryQuantity !== undefined) {
-      // First get the inventoryItem id for the variant
       const variantData = await shopifyAdminGraphql<{
         productVariant: {
           inventoryItem: {
             id: string;
+            inventoryLevel: {
+              quantities: Array<{ quantity: number }>;
+            } | null;
           };
         } | null;
       }>(
         env,
         `
-          query VariantInventoryItem($id: ID!) {
+          query VariantInventoryItem($id: ID!, $locationId: ID!) {
             productVariant(id: $id) {
               inventoryItem {
                 id
+                inventoryLevel(locationId: $locationId) {
+                  quantities(names: ["available"]) {
+                    quantity
+                  }
+                }
               }
             }
           }
         `,
-        { id: input.variantId },
+        { id: input.variantId, locationId: input.locationId },
       );
 
       const inventoryItemId = variantData.productVariant?.inventoryItem.id;
-      if (inventoryItemId) {
-        await shopifyAdminGraphql(
-          env,
-          `
-            mutation InventorySet($input: InventorySetQuantitiesInput!) {
-              inventorySetQuantities(input: $input) {
-                userErrors {
-                  message
-                }
+      const currentQuantity = variantData.productVariant?.inventoryItem.inventoryLevel?.quantities[0]?.quantity;
+      if (!inventoryItemId || currentQuantity === undefined) {
+        throw new Error('El inventario no esta activo en la sucursal seleccionada');
+      }
+
+      const inventoryResult = await shopifyAdminGraphql<{
+        inventorySetQuantities: { userErrors: Array<{ message: string }> };
+      }>(
+        env,
+        `
+          mutation InventorySet($input: InventorySetQuantitiesInput!) {
+            inventorySetQuantities(input: $input) {
+              userErrors {
+                message
               }
             }
-          `,
-          {
-            input: {
-              name: 'available',
-              reason: 'correction',
-              quantities: [
-                {
-                  inventoryItemId,
-                  locationId: input.locationId,
-                  quantity: input.inventoryQuantity,
-                },
-              ],
-            },
+          }
+        `,
+        {
+          input: {
+            name: 'available',
+            reason: 'correction',
+            quantities: [{
+              inventoryItemId,
+              locationId: input.locationId,
+              quantity: input.inventoryQuantity,
+              changeFromQuantity: currentQuantity,
+            }],
           },
-        );
+        },
+      );
+
+      if (inventoryResult.inventorySetQuantities.userErrors.length > 0) {
+        throw new Error(inventoryResult.inventorySetQuantities.userErrors[0]?.message || 'No se pudo actualizar inventario');
       }
     }
   }

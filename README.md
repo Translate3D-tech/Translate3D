@@ -57,6 +57,12 @@ El dev server usa `.env` (MiniOxygen). Debes tener variables tipo `PUBLIC_STORE_
 - `PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID` (Customer Account API client id)
 - `PUBLIC_CUSTOMER_ACCOUNT_API_URL` (base URL `https://shopify.com/<SHOP_ID>`; Hydrogen no lo usa hoy, pero el tipo lo exige)
 
+### API administrativa (panel, cotizaciones y rastreo)
+
+La tienda necesita una app instalada en la misma organizacion de Shopify con acceso a los recursos usados por estas funciones. Guarda `SHOPIFY_ADMIN_API_CLIENT_ID` y `SHOPIFY_ADMIN_API_CLIENT_SECRET` como variables privadas de Oxygen Production; nunca las publiques como variables `PUBLIC_` ni las confirmes en Git. Hydrogen obtiene un token temporal de Shopify y lo renueva antes de que caduque.
+
+`PUBLIC_STORE_DOMAIN` ya apunta al dominio canonico de la tienda (`0jdqr1-hd.myshopify.com`), que debe usarse para la autenticacion administrativa. No lo sustituyas por el alias `translate3d.myshopify.com`. Opcionalmente, `SHOPIFY_STORE_DOMAIN` puede fijar otro dominio canonico de Shopify y `SHOPIFY_ADMIN_API_VERSION` puede fijar la version estable de Admin API (por defecto `2026-01`). El token heredado `SHOPIFY_ADMIN_API_ACCESS_TOKEN` sigue siendo compatible si ya existe, pero no es necesario para la app del Dev Dashboard.
+
 ## Seed de datos (blog + colecciones + productos)
 
 Como no tienes data inicial en Shopify, incluimos un script para crear los datos del landing en tu tienda:
