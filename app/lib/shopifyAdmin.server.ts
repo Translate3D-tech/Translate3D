@@ -144,6 +144,7 @@ export type AdminOrderSummary = {
   name: string;
   confirmationNumber: string;
   createdAt: string;
+  cancelledAt: string | null;
   displayFinancialStatus: string;
   displayFulfillmentStatus: string;
   totalAmount: string;
@@ -163,6 +164,7 @@ export type AdminTrackedOrder = {
   id: string;
   name: string;
   createdAt: string;
+  cancelledAt: string | null;
   displayFinancialStatus: string;
   displayFulfillmentStatus: string;
   totalAmount: string;
@@ -176,6 +178,7 @@ export type AdminOrderDetails = {
   tags: string[];
   confirmationNumber: string;
   createdAt: string;
+  cancelledAt: string | null;
   displayFinancialStatus: string;
   displayFulfillmentStatus: string;
   currencyCode: string;
@@ -294,6 +297,7 @@ export async function listAdminOrders(
         name: string;
         confirmationNumber: string | null;
         createdAt: string;
+        cancelledAt: string | null;
         displayFinancialStatus: string;
         displayFulfillmentStatus: string;
         tags: string[];
@@ -329,6 +333,7 @@ export async function listAdminOrders(
             name
             confirmationNumber
             createdAt
+            cancelledAt
             displayFinancialStatus
             displayFulfillmentStatus
             tags
@@ -364,6 +369,7 @@ export async function listAdminOrders(
     name: order.name,
     confirmationNumber: order.confirmationNumber || '',
     createdAt: order.createdAt,
+    cancelledAt: order.cancelledAt,
     displayFinancialStatus: order.displayFinancialStatus,
     displayFulfillmentStatus: order.displayFulfillmentStatus,
     totalAmount: order.currentTotalPriceSet.shopMoney.amount,
@@ -414,6 +420,7 @@ export async function findAdminOrderByReference(env: Env, reference: string) {
           id: string;
           name: string;
           createdAt: string;
+          cancelledAt: string | null;
           displayFinancialStatus: string;
           displayFulfillmentStatus: string;
           currentTotalPriceSet: {
@@ -433,6 +440,7 @@ export async function findAdminOrderByReference(env: Env, reference: string) {
               id
               name
               createdAt
+              cancelledAt
               displayFinancialStatus
               displayFulfillmentStatus
               currentTotalPriceSet {
@@ -454,6 +462,7 @@ export async function findAdminOrderByReference(env: Env, reference: string) {
         id: order.id,
         name: order.name,
         createdAt: order.createdAt,
+        cancelledAt: order.cancelledAt,
         displayFinancialStatus: order.displayFinancialStatus,
         displayFulfillmentStatus: order.displayFulfillmentStatus,
         totalAmount: order.currentTotalPriceSet.shopMoney.amount,
@@ -483,6 +492,7 @@ export async function findAdminOrderByTrackingReference(
         id: string;
         name: string;
         createdAt: string;
+        cancelledAt: string | null;
         displayFinancialStatus: string;
         displayFulfillmentStatus: string;
         currentTotalPriceSet: {
@@ -502,6 +512,7 @@ export async function findAdminOrderByTrackingReference(
             id
             name
             createdAt
+            cancelledAt
             displayFinancialStatus
             displayFulfillmentStatus
             currentTotalPriceSet {
@@ -525,6 +536,7 @@ export async function findAdminOrderByTrackingReference(
       id: order.id,
       name: order.name,
       createdAt: order.createdAt,
+      cancelledAt: order.cancelledAt,
       displayFinancialStatus: order.displayFinancialStatus,
       displayFulfillmentStatus: order.displayFulfillmentStatus,
       totalAmount: order.currentTotalPriceSet.shopMoney.amount,
@@ -547,6 +559,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
       tags: string[];
       confirmationNumber: string | null;
       createdAt: string;
+      cancelledAt: string | null;
       displayFinancialStatus: string;
       displayFulfillmentStatus: string;
       currentTotalPriceSet: {
@@ -624,6 +637,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
           tags
           confirmationNumber
           createdAt
+          cancelledAt
           displayFinancialStatus
           displayFulfillmentStatus
           currentTotalPriceSet {
@@ -704,6 +718,7 @@ export async function getAdminOrderDetails(env: Env, orderId: string) {
     tags: data.order.tags ?? [],
     confirmationNumber: data.order.confirmationNumber || '',
     createdAt: data.order.createdAt,
+    cancelledAt: data.order.cancelledAt,
     displayFinancialStatus: data.order.displayFinancialStatus,
     displayFulfillmentStatus: data.order.displayFulfillmentStatus,
     currencyCode: data.order.currentTotalPriceSet.shopMoney.currencyCode,

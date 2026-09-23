@@ -230,7 +230,9 @@ export default function Orders() {
 }
 
 function OrderCard({ order, trackingReference }: { order: OrderItemFragment; trackingReference?: string }) {
-  const fulfillmentStatus = normalizeFulfillmentStatus(String(flattenFirst(order.fulfillments?.nodes)?.status || order.fulfillmentStatus || 'UNFULFILLED'));
+  const fulfillmentStatus = order.cancelledAt
+    ? { label: 'Pedido cancelado' }
+    : normalizeFulfillmentStatus(String(order.fulfillmentStatus || 'UNFULFILLED'));
   const financialStatus = normalizeFinancialStatus(order.financialStatus ? String(order.financialStatus) : '');
   const processedDate = order.processedAt
     ? new Date(order.processedAt).toLocaleDateString('es-MX', {
@@ -303,10 +305,10 @@ function OrderCard({ order, trackingReference }: { order: OrderItemFragment; tra
 function normalizeFulfillmentStatus(raw: string) {
   const key = raw.toUpperCase();
   const map: Record<string, { label: string }> = {
-    UNFULFILLED: { label: 'Confirmado' },
-    PARTIALLY_FULFILLED: { label: 'En camino' },
-    FULFILLED: { label: 'Entregado' },
-    IN_PROGRESS: { label: 'En proceso' },
+    UNFULFILLED: { label: 'Sin preparar' },
+    PARTIALLY_FULFILLED: { label: 'Preparación parcial' },
+    FULFILLED: { label: 'Preparado' },
+    IN_PROGRESS: { label: 'En preparación' },
     ON_HOLD: { label: 'En pausa' },
   };
   return map[key] || { label: key.replace(/_/g, ' ').toLowerCase() };
@@ -325,11 +327,6 @@ function normalizeFinancialStatus(raw: string) {
   };
   if (!key) return { label: 'Sin información de pago', badge: 'Sin dato' };
   return map[key] || { label: key.replace(/_/g, ' ').toLowerCase(), badge: 'Actualizado' };
-}
-
-function flattenFirst<T>(nodes?: Array<T> | null): T | undefined {
-  if (!nodes || nodes.length === 0) return undefined;
-  return nodes[0];
 }
 
 function normalizeSort(value: string): OrderSort {

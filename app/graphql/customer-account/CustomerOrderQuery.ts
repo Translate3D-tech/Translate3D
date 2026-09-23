@@ -51,12 +51,8 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
     statusPageUrl
     financialStatus
     fulfillmentStatus
+    cancelledAt
     processedAt
-    fulfillments(first: 1) {
-      nodes {
-        status
-      }
-    }
     totalTax {
       ...OrderMoney
     }

@@ -19,6 +19,7 @@ import {
 import { toggleArticleVisibility } from '~/lib/shopifyAdmin.server';
 import { listServiceQuoteRequests } from '~/lib/serviceQuotes.server';
 import { encodeRouteToken } from '~/lib/urlTokens';
+import { createOrderTrackingReference } from '~/lib/orderTracking.server';
 import { Input } from '~/components/ui/input';
 import {
   DropdownMenu,
@@ -249,9 +250,16 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       : Promise.resolve({ collection: null, products: [] }),
   ]);
 
+  const ordersWithTrackingReferences = await Promise.all(
+    orders.map(async (order) => ({
+      ...order,
+      trackingReference: await createOrderTrackingReference(context.env, order.id),
+    })),
+  );
+
   return data({
     selection,
-    orders,
+    orders: ordersWithTrackingReferences,
     quotes,
     blogPosts,
     catalogCollection: catalog.collection,
@@ -713,7 +721,7 @@ export default function AdminRoute() {
                             >
                               <td className="px-4 py-3">
                                 <p className="text-xs font-bold uppercase text-dark">{order.name}</p>
-                                <p className="text-xs text-dark/50 uppercase">ord_{order.id.match(/(\d+)$/)?.[1] || ''}</p>
+                                <p className="text-xs text-dark/50">{order.trackingReference}</p>
                                 {order.confirmationNumber ? (
                                   <p className="text-xs text-dark/50 uppercase">#{order.confirmationNumber}</p>
                                 ) : null}
@@ -760,8 +768,8 @@ export default function AdminRoute() {
                               </td>
                               <td className="w-[150px] px-4 py-3">
                                 <TagChip
-                                  label={formatFulfillmentStatus(order.displayFulfillmentStatus)}
-                                  className={`w-fit text-[10px] ${statusTone(order.displayFulfillmentStatus)}`}
+                                  label={order.cancelledAt ? 'Pedido cancelado' : formatFulfillmentStatus(order.displayFulfillmentStatus)}
+                                  className={`w-fit text-[10px] ${statusTone(order.cancelledAt ? 'CANCELLED' : order.displayFulfillmentStatus)}`}
                                 />
                               </td>
                               <td className="px-4 py-3 text-sm font-bold text-dark">

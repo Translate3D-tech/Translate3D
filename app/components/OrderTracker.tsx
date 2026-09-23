@@ -11,6 +11,7 @@ type TrackerFetcherData =
       id: string;
       name: string;
       createdAt: string;
+      cancelledAt: string | null;
       displayFinancialStatus: string;
       displayFulfillmentStatus: string;
       totalAmount: string;
@@ -44,10 +45,10 @@ function formatStatus(value: string) {
     PARTIALLY_REFUNDED: 'Reembolso parcial',
     REFUNDED: 'Reembolsado',
     VOIDED: 'Anulado',
-    UNFULFILLED: 'Confirmado',
-    PARTIALLY_FULFILLED: 'En camino',
-    FULFILLED: 'Entregado',
-    IN_PROGRESS: 'En proceso',
+    UNFULFILLED: 'Sin preparar',
+    PARTIALLY_FULFILLED: 'Preparación parcial',
+    FULFILLED: 'Preparado',
+    IN_PROGRESS: 'En preparación',
     ON_HOLD: 'En pausa',
   };
 
@@ -111,7 +112,7 @@ export function OrderTracker({
             type="text"
             name="reference"
             required
-            placeholder="# de pedido / cotizacion"
+            placeholder="Folio de seguimiento o cotización"
             disabled={isSubmitting}
             className={cn(
               'min-w-0 flex-1 rounded bg-transparent text-[24px] uppercase tracking-tight md:text-[52px] lg:text-[64px]',
@@ -170,7 +171,11 @@ function TrackerStatus({
       <div className="mt-3 rounded border border-green-300/80 bg-green-500/15 px-3 py-2 text-xs font-bold uppercase tracking-tight text-white">
         <p>Pedido encontrado: {data.order.name}</p>
         <p className="mt-1">Pago: {formatStatus(data.order.displayFinancialStatus)}</p>
-        <p className="mt-1">Envío: {formatStatus(data.order.displayFulfillmentStatus)}</p>
+        <p className="mt-1">
+          {data.order.cancelledAt
+            ? 'Estado: Pedido cancelado'
+            : `Envío: ${formatStatus(data.order.displayFulfillmentStatus)}`}
+        </p>
         <p className="mt-1">Total: {formatMoney(data.order.totalAmount, data.order.currencyCode)}</p>
         <p className="mt-1">Fecha: {formatDate(data.order.createdAt)}</p>
         <p className="mt-1 font-semibold normal-case tracking-normal text-white/90">

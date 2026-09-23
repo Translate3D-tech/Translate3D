@@ -6,6 +6,7 @@ import { ExternalLink, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { getAdminOrderDetails, isAdminCustomer } from '~/lib/shopifyAdmin.server';
 import { decodeRouteToken } from '~/lib/urlTokens';
+import { createOrderTrackingReference } from '~/lib/orderTracking.server';
 import { Image } from '@shopify/hydrogen';
 import { TagChip } from '~/components/landing/TagChip';
 
@@ -94,9 +95,9 @@ function formatFulfillmentStatus(status: string) {
   const key = status.toUpperCase();
   const labels: Record<string, string> = {
     UNFULFILLED: 'No preparado',
-    PARTIALLY_FULFILLED: 'En camino',
-    FULFILLED: 'Entregado',
-    IN_PROGRESS: 'En proceso',
+    PARTIALLY_FULFILLED: 'Preparación parcial',
+    FULFILLED: 'Preparado',
+    IN_PROGRESS: 'En preparación',
     ON_HOLD: 'En pausa',
     SCHEDULED: 'Programado',
   };
@@ -117,17 +118,13 @@ function addressLines(address: {
   return [address.name, address.address1, address.address2, locality, address.country].filter(Boolean);
 }
 
-function buildTimeline(status: string, createdAt: string) {
-  const date = formatDate(createdAt);
-  const steps = [
-    { label: 'Confirmado', date },
-    { label: 'En camino', date },
-    { label: 'Enviado al destinatario', date },
-    { label: 'Entregado', date },
-  ];
-  const key = status.toUpperCase();
-  if (key === 'UNFULFILLED') return steps.slice(0, 1);
-  if (key === 'PARTIALLY_FULFILLED' || key === 'IN_PROGRESS') return steps.slice(0, 3);
+function buildTimeline(status: string, createdAt: string, cancelledAt: string | null) {
+  const steps = [{ label: 'Pedido recibido', date: formatDate(createdAt) }];
+  if (cancelledAt) {
+    steps.push({ label: 'Pedido cancelado', date: formatDate(cancelledAt) });
+  } else if (status !== 'UNFULFILLED') {
+    steps.push({ label: formatFulfillmentStatus(status), date: '' });
+  }
   return steps;
 }
 
@@ -183,15 +180,16 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     order,
     viewerName: viewer.accountName,
     shopifyNumericId: extractNumericId(order.id),
+    trackingReference: await createOrderTrackingReference(context.env, order.id),
   });
 }
 
 export default function AdminOrderDetailsRoute() {
-  const { order, viewerName, shopifyNumericId } = useLoaderData<typeof loader>();
+  const { order, viewerName, shopifyNumericId, trackingReference } = useLoaderData<typeof loader>();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSidebarMobileOpen, setSidebarMobileOpen] = useState(false);
 
-  const timeline = buildTimeline(order.displayFulfillmentStatus, order.createdAt);
+  const timeline = buildTimeline(order.displayFulfillmentStatus, order.createdAt, order.cancelledAt);
   const total = Number(order.totalAmount || '0');
   const paidAmount = order.displayFinancialStatus.toUpperCase().includes('PAID') ? total : 0;
   const pendingAmount = Math.max(0, total - paidAmount);
@@ -298,8 +296,8 @@ export default function AdminOrderDetailsRoute() {
                 </div>
               ) : null}
               <div className="text-left sm:text-right">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">ID numérico</p>
-                <p className="text-lg font-bold text-dark mt-0.5 font-mono">ord_{shopifyNumericId}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Folio de seguimiento</p>
+                <p className="text-lg font-bold text-dark mt-0.5 font-mono">{trackingReference}</p>
               </div>
             </div>
           </div>
@@ -312,12 +310,12 @@ export default function AdminOrderDetailsRoute() {
                 <h3 className="text-lg font-bold text-dark">Estado de preparación</h3>
                 <p className="text-sm text-gray-500 mt-0.5">Progreso del envío del pedido</p>
                 <div className="mt-5 space-y-4">
-                  {timeline.map((step, index) => (
-                    <div key={`${step.label}-${index}`} className="flex items-start gap-3">
+                  {timeline.map((step) => (
+                    <div key={step.label} className="flex items-start gap-3">
                       <div className="mt-1.5 h-3 w-3 rounded-full bg-brand-orange/80 shrink-0" />
                       <div>
                         <p className="text-sm font-bold text-dark">{step.label}</p>
-                        <p className="text-xs text-gray-400">{step.date}</p>
+                        {step.date ? <p className="text-xs text-gray-400">{step.date}</p> : null}
                       </div>
                     </div>
                   ))}
@@ -335,7 +333,10 @@ export default function AdminOrderDetailsRoute() {
                   </div>
                   <div className="flex flex-wrap items-start gap-2">
                     <TagChip label={formatFinancialStatus(order.displayFinancialStatus)} className={`w-fit text-xs ${statusTone(order.displayFinancialStatus)}`} />
-                    <TagChip label={formatFulfillmentStatus(order.displayFulfillmentStatus)} className={`w-fit text-xs ${statusTone(order.displayFulfillmentStatus)}`} />
+                    <TagChip
+                      label={order.cancelledAt ? 'Pedido cancelado' : formatFulfillmentStatus(order.displayFulfillmentStatus)}
+                      className={`w-fit text-xs ${statusTone(order.cancelledAt ? 'CANCELLED' : order.displayFulfillmentStatus)}`}
+                    />
                   </div>
                 </div>
 
@@ -449,4 +450,3 @@ const ADMIN_CUSTOMER_QUERY = `
     }
   }
 ` as const;
-

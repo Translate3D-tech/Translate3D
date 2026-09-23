@@ -14,6 +14,7 @@ type TrackerSuccessResponse =
         id: string;
         name: string;
         createdAt: string;
+        cancelledAt: string | null;
         displayFinancialStatus: string;
         displayFulfillmentStatus: string;
         totalAmount: string;

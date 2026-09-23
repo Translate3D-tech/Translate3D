@@ -1,3 +1,2 @@
 export const TRACKING_REFERENCE_HELP =
-  'Ingresa un folio de pedido o de cotizacion valido para continuar.';
-
+  'Ingresa el folio de seguimiento de tu pedido (ord_...) o el de tu cotización (COT-...).';

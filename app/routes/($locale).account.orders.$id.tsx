@@ -36,10 +36,10 @@ function buildBuyAgainPath(lineItems: Array<OrderLineItemFullFragment & {variant
 function formatStatusLabel(value?: string | null) {
   const key = (value || 'PENDING').toUpperCase();
   const map: Record<string, string> = {
-    UNFULFILLED: 'Confirmado',
-    PARTIALLY_FULFILLED: 'En camino',
-    FULFILLED: 'Entregado',
-    IN_PROGRESS: 'En proceso',
+    UNFULFILLED: 'Sin preparar',
+    PARTIALLY_FULFILLED: 'Preparación parcial',
+    FULFILLED: 'Preparado',
+    IN_PROGRESS: 'En preparación',
     ON_HOLD: 'En pausa',
     PENDING: 'Pago pendiente',
     AUTHORIZED: 'Pago autorizado',
@@ -111,18 +111,13 @@ function formatMoney(amount: number, currencyCode: string) {
   }).format(amount);
 }
 
-function buildFulfillmentTimeline(fulfillmentStatus: string, processedAt: string) {
-  const createdDate = formatLongDate(processedAt);
-  const timeline = [
-    {label: 'Confirmado', date: createdDate},
-    {label: 'En camino', date: createdDate},
-    {label: 'Enviado al destinatario', date: createdDate},
-    {label: 'Entregado', date: createdDate},
-  ];
-
-  const key = fulfillmentStatus.toUpperCase();
-  if (key === 'UNFULFILLED' || key === 'PENDING') return timeline.slice(0, 1);
-  if (key === 'IN_PROGRESS' || key === 'PARTIALLY_FULFILLED') return timeline.slice(0, 3);
+function buildFulfillmentTimeline(fulfillmentStatus: string, processedAt: string, cancelledAt?: string | null) {
+  const timeline = [{label: 'Pedido recibido', date: formatLongDate(processedAt)}];
+  if (cancelledAt) {
+    timeline.push({label: 'Pedido cancelado', date: formatLongDate(cancelledAt)});
+  } else if (fulfillmentStatus !== 'UNFULFILLED') {
+    timeline.push({label: formatStatusLabel(fulfillmentStatus), date: ''});
+  }
   return timeline;
 }
 
@@ -150,7 +145,7 @@ export async function loader({params, context}: Route.LoaderArgs) {
 
   const order = data.order as any;
   const lineItems = order.lineItems.nodes as Array<OrderLineItemFullFragment & {variantId?: string | null}>;
-  const fulfillmentStatus = order.fulfillments.nodes[0]?.status ?? order.fulfillmentStatus ?? 'PENDING';
+  const fulfillmentStatus = order.fulfillmentStatus ?? 'UNFULFILLED';
   const trackingReference = await createOrderTrackingReference(context.env, order.id);
 
   return {
@@ -175,7 +170,11 @@ export default function OrderRoute() {
   const shipping = Math.max(0, total - subtotal - taxes);
   const currencyCode = order.totalPrice.currencyCode;
   const financialStatus = getFinancialStatusView(order.financialStatus);
-  const timeline = buildFulfillmentTimeline(String(fulfillmentStatus || 'PENDING'), String(order.processedAt || new Date()));
+  const timeline = buildFulfillmentTimeline(
+    String(fulfillmentStatus),
+    String(order.processedAt || new Date()),
+    order.cancelledAt,
+  );
 
   return (
     <section className="rounded-2xl border border-dark/10 bg-white p-4 text-dark md:p-6">
@@ -203,15 +202,15 @@ export default function OrderRoute() {
         <div className="space-y-4">
           <article className="rounded-2xl border border-dark/10 bg-light p-4">
             <h3 className="text-lg font-extrabold text-dark">
-              Estado de preparación: {formatStatusLabel(fulfillmentStatus)}
+              Estado de preparación: {order.cancelledAt ? 'Pedido cancelado' : formatStatusLabel(fulfillmentStatus)}
             </h3>
             <div className="mt-3 space-y-2">
-              {timeline.map((step, index) => (
-                <div key={`${step.label}-${index}`} className="flex items-start gap-3">
+              {timeline.map((step) => (
+                <div key={step.label} className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-dark/70" />
                   <div>
                     <p className="text-sm font-bold text-dark">{step.label}</p>
-                    <p className="text-xs text-dark/60">{step.date}</p>
+                    {step.date ? <p className="text-xs text-dark/60">{step.date}</p> : null}
                   </div>
                 </div>
               ))}
