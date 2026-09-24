@@ -22,7 +22,7 @@ export function InfiniteText() {
   const content = (
     <div className="mx-4 lg:mx-8 flex items-center gap-4">
       <div className="flex size-24 lg:size-32 items-center justify-center rounded-md bg-light">
-        <LogoIcon className="text-dark" />
+        <LogoIcon className="w-20 lg:w-28" />
       </div>
       <h1 className="text-[64px] lg:text-[96px] font-extrabold uppercase whitespace-nowrap tracking-tight text-dark">
         &iquest;Qu&eacute; hacemos?

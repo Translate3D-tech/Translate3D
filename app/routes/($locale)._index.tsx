@@ -20,6 +20,9 @@ export const meta: Route.MetaFunction = () => {
     { property: 'og:title', content: 'Translate3D | Impresión 3D, Filamentos, Resinas y Modelado' },
     { property: 'og:description', content: 'Tu tienda especializada en impresión 3D en México. Filamentos, resinas, refacciones y servicios profesionales.' },
     { property: 'og:type', content: 'website' },
+    { property: 'og:image', content: 'https://translate-3d.com/logos/translate3d.png' },
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:image', content: 'https://translate-3d.com/logos/translate3d.png' },
   ];
 };
 

@@ -240,7 +240,7 @@ export function AdminSidebar({
             onClick={onMobileClose}
             className={cn('flex items-center text-dark', effectiveCollapsed ? 'justify-center' : 'gap-2')}
           >
-            <LogoIcon className="h-10 w-10" />
+            <LogoIcon className="w-10" />
             <span className={cn('text-lg font-bold', effectiveCollapsed && 'hidden')}>Translate3D</span>
           </Link>
 

@@ -200,8 +200,12 @@ function FooterLinks({
           </div>
         </div>
 
-        {/* Empty area - Column 2 */}
-        <div className="hidden lg:block border-r border-light min-h-[180px]" />
+        {/* Brand - Column 2 */}
+        <div className="flex items-center justify-center border-b border-light p-5 lg:min-h-[180px] lg:border-b-0 lg:border-r">
+          <Link to="/" aria-label="Translate3D, ir al inicio" className={cn('rounded', focusStyle({ theme: 'light' }))}>
+            <img src="/logos/translate3d.png" alt="Translate3D" className="h-36 w-auto object-contain" loading="lazy" />
+          </Link>
+        </div>
 
         {/* Store Link - Column 3 */}
         <div className="flex flex-col justify-between p-5 gap-8 border-b lg:border-b-0 lg:border-r border-light min-h-[180px]">

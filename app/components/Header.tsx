@@ -417,7 +417,7 @@ export function Header({
             <LogoIcon
               className={cn(
                 'transition-transform duration-200',
-                isScrolled ? 'h-9 w-9' : 'h-12 w-12',
+                isScrolled ? 'w-9' : 'w-12',
               )}
             />
             <span

@@ -12,9 +12,6 @@ import {
   useLocation,
 } from 'react-router';
 import type { Route } from './+types/root';
-import favicon16 from '~/assets/favicon-16.png';
-import favicon32 from '~/assets/favicon-32.png';
-import appleTouchIcon from '~/assets/apple-touch-icon.png';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
 import tailwindCss from './styles/tailwind.css?url';
 import { PageLayout } from './components/PageLayout';
@@ -76,9 +73,8 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@200..800&display=swap',
     },
-    { rel: 'icon', type: 'image/png', sizes: '32x32', href: favicon32 },
-    { rel: 'icon', type: 'image/png', sizes: '16x16', href: favicon16 },
-    { rel: 'apple-touch-icon', sizes: '180x180', href: appleTouchIcon },
+    { rel: 'icon', type: 'image/png', href: '/logos/translate3d.png' },
+    { rel: 'apple-touch-icon', href: '/logos/translate3d.png' },
   ];
 }
 
