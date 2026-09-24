@@ -224,6 +224,13 @@ export const HEADER_QUERY = `#graphql
     menu(handle: $headerMenuHandle) {
       ...Menu
     }
+    maestraCool: collection(handle: "coleccion-maestr-cool") {
+      products(first: 1) {
+        nodes {
+          id
+        }
+      }
+    }
   }
   ${MENU_FRAGMENT}
 ` as const;

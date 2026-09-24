@@ -11,16 +11,34 @@ import type { ProductFragment } from 'storefrontapi.generated';
 import { cn, focusStyle } from '~/lib/utils';
 import { Minus, Plus, X } from 'lucide-react';
 
+const PRODUCTS_REQUIRING_NAME = new Set([
+  'maestra-cool-mc-06',
+  'maestra-cool-mc-07',
+  'maestra-cool-mc-10',
+  'maestra-cool-mc-16',
+  'maestra-cool-mc-24',
+]);
+
 export function ProductForm({
   productOptions,
   selectedVariant,
+  productHandle,
 }: {
   productOptions: MappedProductOptions[];
   selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
+  productHandle: string;
 }) {
   const navigate = useNavigate();
   const { open } = useAside();
   const [quantity, setQuantity] = useState(1);
+  const [personalizedNames, setPersonalizedNames] = useState('');
+  const [orderDetails, setOrderDetails] = useState('');
+  const isNewCatalogProduct = productHandle.startsWith('maestra-cool-mc-');
+  const requiresName = PRODUCTS_REQUIRING_NAME.has(productHandle);
+  const attributes = [
+    ...(personalizedNames.trim() ? [{key: 'Nombre(s) a imprimir', value: personalizedNames.trim()}] : []),
+    ...(orderDetails.trim() ? [{key: 'Color, diseño o instrucciones', value: orderDetails.trim()}] : []),
+  ];
 
   const increment = () => setQuantity((q) => Math.min(q + 1, 100));
   const decrement = () => setQuantity((q) => Math.max(q - 1, 1));
@@ -100,6 +118,42 @@ export function ProductForm({
         );
       })}
 
+      {isNewCatalogProduct && (
+        <div className="space-y-4 border-t border-dark/10 pt-6">
+          {requiresName && (
+            <div className="space-y-2">
+              <label htmlFor="personalized-names" className="block text-sm font-bold text-dark">
+                Nombre(s) a imprimir <span aria-hidden="true">*</span>
+              </label>
+              <textarea
+                id="personalized-names"
+                value={personalizedNames}
+                onChange={(event) => setPersonalizedNames(event.target.value)}
+                maxLength={255}
+                required
+                rows={2}
+                placeholder="Si compras varias piezas, indica el nombre de cada una."
+                className="w-full rounded-md border border-dark/20 bg-white p-3 text-sm text-dark"
+              />
+            </div>
+          )}
+          <div className="space-y-2">
+            <label htmlFor="order-details" className="block text-sm font-bold text-dark">
+              Color, diseño o instrucciones <span className="font-normal">(opcional)</span>
+            </label>
+            <textarea
+              id="order-details"
+              value={orderDetails}
+              onChange={(event) => setOrderDetails(event.target.value)}
+              maxLength={255}
+              rows={2}
+              placeholder="Indica los detalles de cada pieza si compras más de una."
+              className="w-full rounded-md border border-dark/20 bg-white p-3 text-sm text-dark"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Legacy Quantity Selector */}
       <div className="flex flex-col w-full border-t border-dark/10 pt-6">
         <div className="flex items-center justify-between border-b border-dark/10 pb-4">
@@ -155,7 +209,7 @@ export function ProductForm({
       </div>
 
       <AddToCartButton
-        disabled={!selectedVariant || !selectedVariant.availableForSale}
+        disabled={!selectedVariant || !selectedVariant.availableForSale || (requiresName && !personalizedNames.trim())}
         onClick={() => {
           open('cart');
         }}
@@ -164,7 +218,8 @@ export function ProductForm({
             ? [
               {
                 merchandiseId: selectedVariant.id,
-                quantity: quantity,
+                quantity,
+                attributes,
                 selectedVariant,
               },
             ]
@@ -172,7 +227,7 @@ export function ProductForm({
         }
       >
         {selectedVariant?.availableForSale
-          ? 'Agregar al carrito'
+          ? requiresName && !personalizedNames.trim() ? 'Indica el nombre para continuar' : 'Agregar al carrito'
           : 'Agotado'}
       </AddToCartButton>
     </div>

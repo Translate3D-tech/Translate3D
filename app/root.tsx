@@ -119,7 +119,7 @@ async function loadCriticalData({ context }: Route.LoaderArgs) {
 
   const [header] = await Promise.all([
     storefront.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
+      cache: storefront.CacheShort(),
       variables: {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },

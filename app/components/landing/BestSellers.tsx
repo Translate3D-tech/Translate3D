@@ -35,6 +35,7 @@ export type BestSellerProduct = {
 type FilterKey = 'descuento' | 'nuevo' | 'disponible' | null;
 
 const PREFERRED_COLLECTION_HANDLES = new Set([
+  'coleccion-maestr-cool',
   'modelos-3d',
   'filamentos',
   'resinas',
@@ -119,7 +120,7 @@ export function BestSellers({ products }: { products: BestSellerProduct[] }) {
               Sin resultados
             </h3>
             <p className="text-tgray max-w-md">
-              No se encontraron productos en la categoría de <span className="font-bold text-dark italic">"{filter}"</span> en este momento.
+              No se encontraron productos en la categoría de <span className="font-bold text-dark italic">&ldquo;{filter}&rdquo;</span> en este momento.
             </p>
             <Button
               variant="action"

@@ -44,13 +44,14 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
     });
 
   const categories = context.storefront
-    .query(HOME_CATEGORIES_QUERY, { cache: context.storefront.CacheLong() })
+    .query(HOME_CATEGORIES_QUERY, { cache: context.storefront.CacheShort() })
     .then((res) => {
       const nodes = [
         res.modelos3d,
         res.filamentos,
         res.resinas,
         res.refacciones,
+        res.maestraCool?.products.nodes.length ? res.maestraCool : null,
       ].filter(Boolean);
 
       const byHandle = new Map(nodes.map((c) => [c.handle, c]));
@@ -60,9 +61,10 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
         filamentos: '/tienda/filamentos.webp',
         resinas: '/tienda/resinas.webp',
         refacciones: '/tienda/refacciones.webp',
+        'coleccion-maestr-cool': '/tienda/maestra-cool.jpeg',
       };
 
-      const orderedHandles = ['modelos-3d', 'filamentos', 'resinas', 'refacciones'];
+      const orderedHandles = ['coleccion-maestr-cool', 'modelos-3d', 'filamentos', 'resinas', 'refacciones'];
       const ordered = orderedHandles
         .map((handle) => {
           const c = byHandle.get(handle);
@@ -72,7 +74,7 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
             to: `/tienda/${c.handle}`,
             imageSrc: c.image?.url ?? fallbackImages[c.handle] ?? '/work.webp',
             rounded:
-              handle === 'modelos-3d'
+              handle === 'coleccion-maestr-cool'
                 ? 'left'
                 : handle === 'refacciones'
                   ? 'right'
@@ -222,6 +224,12 @@ const HOME_CATEGORIES_QUERY = `#graphql
     }
     refacciones: collection(handle: "refacciones") {
       ...CategoryCollection
+    }
+    maestraCool: collection(handle: "coleccion-maestr-cool") {
+      ...CategoryCollection
+      products(first: 1) {
+        nodes { id }
+      }
     }
   }
 ` as const;

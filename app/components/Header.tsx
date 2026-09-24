@@ -29,6 +29,15 @@ type Viewport = 'desktop' | 'mobile';
 
 type MenuItem = NonNullable<HeaderQuery['menu']>['items'][number];
 
+function getHeaderMenuItems(showMaestraCool: boolean): MenuItem[] {
+  return (FALLBACK_HEADER_MENU.items as MenuItem[]).map((item) => ({
+    ...item,
+    items: (item.items ?? []).filter(
+      (child) => showMaestraCool || child.id !== 'tienda-maestra-cool',
+    ),
+  }));
+}
+
 /* ───────────────────────── Nav Links (desktop) ───────────────────────── */
 
 function NavLinks({
@@ -375,7 +384,7 @@ export function Header({
   }, [handleScroll]);
 
   // Force use of our custom menu to ensure 1:1 fidelity with the old design
-  const items = FALLBACK_HEADER_MENU.items as MenuItem[];
+  const items = getHeaderMenuItems(Boolean(header.maestraCool?.products.nodes.length));
 
   // Text colour depends on whether the bg is light
   const textColorClass = isLight || isScrolled ? 'text-dark' : 'text-light';
@@ -447,15 +456,17 @@ export function HeaderMenu({
   primaryDomainUrl,
   viewport,
   publicStoreDomain,
+  showMaestraCool,
 }: {
   menu: HeaderProps['header']['menu'];
   primaryDomainUrl: HeaderProps['header']['shop']['primaryDomain']['url'];
   viewport: Viewport;
   publicStoreDomain: HeaderProps['publicStoreDomain'];
+  showMaestraCool: boolean;
 }) {
   const { close } = useAside();
 
-  const items = FALLBACK_HEADER_MENU.items as MenuItem[];
+  const items = getHeaderMenuItems(showMaestraCool);
   const normalizeUrl = (rawUrl: string) =>
     rawUrl.includes('myshopify.com') ||
       rawUrl.includes(publicStoreDomain) ||
@@ -556,6 +567,14 @@ const FALLBACK_HEADER_MENU = {
       tags: [],
       url: '/tienda',
       items: [
+        {
+          id: 'tienda-maestra-cool',
+          title: 'Colección Maestr@ Cool',
+          type: 'HTTP',
+          tags: [],
+          url: '/tienda/coleccion-maestr-cool',
+          items: [],
+        },
         {
           id: 'tienda-modelos',
           title: 'Modelos 3D',

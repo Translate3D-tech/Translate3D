@@ -28,7 +28,7 @@ export function AddToCartButton({
           <Button
             type="submit"
             onClick={onClick}
-            disabled={disabled ?? fetcher.state !== 'idle'}
+            disabled={Boolean(disabled) || fetcher.state !== 'idle'}
             variant="action"
             className="w-full flex items-center justify-center gap-2"
           >

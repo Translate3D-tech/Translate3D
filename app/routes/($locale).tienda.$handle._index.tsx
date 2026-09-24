@@ -146,6 +146,7 @@ export default function Collection() {
     {
       label: collection.title,
       dropdown: [
+        { label: 'Colección Maestr@ Cool', href: '/tienda/coleccion-maestr-cool' },
         { label: 'Modelos 3D', href: '/tienda/modelos-3d' },
         { label: 'Filamentos', href: '/tienda/filamentos' },
         { label: 'Resinas', href: '/tienda/resinas' },
@@ -179,7 +180,7 @@ export default function Collection() {
         <div className="flex flex-col w-full max-w-7xl p-5 bg-dark/30 rounded-3xl gap-40 md:gap-56 overflow-hidden relative min-h-[400px] md:min-h-[500px]">
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
-            style={{ backgroundImage: `url(/tienda/${collection.handle}.webp)` }}
+            style={{ backgroundImage: `url(${collection.handle === 'coleccion-maestr-cool' ? '/tienda/maestra-cool.jpeg' : `/tienda/${collection.handle}.webp`})` }}
           />
           <div className="absolute inset-0 bg-black/40 z-10" />
 
@@ -209,7 +210,7 @@ export default function Collection() {
               </Button>
               <Button asChild variant={available ? 'action' : 'primary'} size="sm" className="flex-shrink-0">
                 <Link to={getFilterLink(null, !available)}>
-                  EN STOCK
+                  {collection.handle === 'coleccion-maestr-cool' ? 'DISPONIBLES' : 'EN STOCK'}
                 </Link>
               </Button>
             </div>
@@ -347,6 +348,8 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
 
 function getCategoryDescription(category: string) {
   const descriptions: { [key: string]: string } = {
+    'coleccion-maestr-cool':
+      'Artículos impresos en 3D para maestras, maestros y salones de clase. Elige el modelo y comparte tus detalles de personalización antes de agregarlo al carrito.',
     resinas:
       'Te ofrecemos una amplia variedad de resinas para tus impresoras 3D. Elige la que mejor se adapte a tus necesidades y preferencias. Contamos con una amplia gama de materiales, colores, estilos y tamaños para ir contigo sea cual sea el caso de uso que tengas.',
     filamentos:

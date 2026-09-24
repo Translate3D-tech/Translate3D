@@ -1,4 +1,5 @@
-import { redirect, useLoaderData, useParams } from 'react-router';
+import { Link, redirect, useLoaderData, useParams } from 'react-router';
+import { useState } from 'react';
 import type { Route } from './+types/($locale).tienda.$handle.$productHandle';
 import {
   getSelectedProductOptions,
@@ -16,7 +17,6 @@ import { Breadcrumbs } from '~/components/ui/Breadcrumbs';
 import { SectionSeparator } from '~/components/SectionSeparator';
 import { BestSellers } from '~/components/landing/BestSellers';
 import { ActionLinks } from '~/components/landing/ActionLinks';
-import { Link } from 'react-router';
 import { SpecificationsTable } from '~/components/SpecificationsTable';
 import { CallToAction } from '~/components/landing/CallToAction';
 import { redirectIfHandleIsLocalized } from '~/lib/redirect';
@@ -101,6 +101,7 @@ export default function Product() {
   const { product } = useLoaderData<typeof loader>();
   const params = useParams();
   const category = params.handle || 'tienda';
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -119,6 +120,10 @@ export default function Product() {
   });
 
   const { title, descriptionHtml, vendor, description, tags } = product;
+  const images = product.images.nodes;
+  const displayedImage = images.find((image) => image.url === selectedImageUrl)
+    ?? selectedVariant?.image
+    ?? product.featuredImage;
 
   // Replicating legacy breadcrumb logic
   const breadcrumbData = [
@@ -126,6 +131,7 @@ export default function Product() {
     {
       label: category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' '),
       dropdown: [
+        { label: 'Colección Maestr@ Cool', href: '/tienda/coleccion-maestr-cool' },
         { label: 'Modelos 3D', href: '/tienda/modelos-3d' },
         { label: 'Filamentos', href: '/tienda/filamentos' },
         { label: 'Resinas', href: '/tienda/resinas' },
@@ -153,7 +159,23 @@ export default function Product() {
               </h1>
 
               <div className="relative w-full isolate">
-                <ProductImage image={selectedVariant?.image} />
+                <ProductImage image={displayedImage} />
+                {images.length > 1 && (
+                  <div className="mt-3 flex gap-3 overflow-x-auto" aria-label="Imágenes del producto">
+                    {images.map((image) => (
+                      <button
+                        key={image.url}
+                        type="button"
+                        onClick={() => setSelectedImageUrl(image.url)}
+                        className={`h-20 w-20 shrink-0 overflow-hidden rounded-md border-2 ${displayedImage?.url === image.url ? 'border-primary' : 'border-dark/10'}`}
+                        aria-label={`Ver imagen: ${image.altText || title}`}
+                        aria-pressed={displayedImage?.url === image.url}
+                      >
+                        <img src={image.url} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -162,9 +184,9 @@ export default function Product() {
           <div className="flex flex-col w-full lg:max-w-[500px] lg:mx-20 py-10 lg:py-20 px-10 lg:px-0">
             <div className="flex flex-col gap-6">
               <div className="flex flex-wrap gap-2">
-                {tags?.map((tag: string, index: number) => (
+                {tags?.map((tag: string) => (
                   <TagChip
-                    key={index}
+                    key={tag}
                     label={tag}
                     availableForSale={selectedVariant?.availableForSale}
                   />
@@ -185,6 +207,7 @@ export default function Product() {
                 <ProductForm
                   productOptions={productOptions}
                   selectedVariant={selectedVariant}
+                  productHandle={product.handle}
                 />
               </div>
             </div>
@@ -306,6 +329,22 @@ const PRODUCT_FRAGMENT = `#graphql
     title
     vendor
     handle
+    featuredImage {
+      id
+      url
+      altText
+      width
+      height
+    }
+    images(first: 10) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     descriptionHtml
     description
     tags

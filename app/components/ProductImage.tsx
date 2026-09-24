@@ -1,10 +1,10 @@
-import type {ProductVariantFragment} from 'storefrontapi.generated';
+import type {ProductFragment, ProductVariantFragment} from 'storefrontapi.generated';
 import {Image} from '@shopify/hydrogen';
 
 export function ProductImage({
   image,
 }: {
-  image: ProductVariantFragment['image'];
+  image: ProductVariantFragment['image'] | ProductFragment['featuredImage'];
 }) {
   if (!image) {
     return (

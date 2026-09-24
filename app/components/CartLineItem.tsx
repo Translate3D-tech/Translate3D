@@ -28,7 +28,7 @@ export function CartLineItem({
   line: CartLine;
   childrenMap: LineItemChildrenMap;
 }) {
-  const { id, merchandise, cost } = line;
+  const { id, merchandise, cost, attributes } = line;
   const { product, title, image, selectedOptions } = merchandise;
   const lineItemUrl = useVariantUrl(product.handle, selectedOptions);
   const { close } = useAside();
@@ -73,6 +73,11 @@ export function CartLineItem({
                   .map((opt) => opt.value)
                   .join(' / ')}
               </p>
+              {attributes?.filter((attribute) => attribute.value).map((attribute) => (
+                <p key={attribute.key} className="text-xs text-tgray">
+                  <span className="font-semibold">{attribute.key}:</span> {attribute.value}
+                </p>
+              ))}
             </div>
 
             <div className="flex flex-col items-end shrink-0">

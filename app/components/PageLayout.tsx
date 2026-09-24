@@ -184,6 +184,7 @@ function MobileMenuAside({
           viewport="mobile"
           primaryDomainUrl={header.shop.primaryDomain.url}
           publicStoreDomain={publicStoreDomain}
+          showMaestraCool={Boolean(header.maestraCool?.products.nodes.length)}
         />
       </Aside>
     )

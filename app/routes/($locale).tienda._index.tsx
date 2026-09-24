@@ -14,22 +14,29 @@ export const meta: Route.MetaFunction = () => {
 export async function loader(args: Route.LoaderArgs) {
   const { storefront } = args.context;
 
-  const { products } = await storefront.query(BEST_SELLERS_STORE_QUERY);
+  const { products, maestraCool } = await storefront.query(BEST_SELLERS_STORE_QUERY);
 
   return {
     bestSellers: products.nodes,
+    showMaestraCool: Boolean(maestraCool?.products.nodes.length),
   };
 }
 
 export default function TiendaIndex() {
-  const { bestSellers } = useLoaderData<typeof loader>();
+  const { bestSellers, showMaestraCool } = useLoaderData<typeof loader>();
 
   const storeCategories: StoreCategory[] = [
+    ...(showMaestraCool ? [{
+      title: 'Colección Maestr@ Cool',
+      to: '/tienda/coleccion-maestr-cool',
+      imageSrc: '/tienda/maestra-cool.jpeg',
+      rounded: 'left' as const,
+    }] : []),
     {
       title: 'Modelos 3D',
       to: '/tienda/modelos-3d',
       imageSrc: '/tienda/modelos-3d.webp',
-      rounded: 'left',
+      rounded: showMaestraCool ? 'none' : 'left',
     },
     {
       title: 'Filamentos',
@@ -61,6 +68,11 @@ export default function TiendaIndex() {
 const BEST_SELLERS_STORE_QUERY = `#graphql
   query BestSellersStore($country: CountryCode, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
+    maestraCool: collection(handle: "coleccion-maestr-cool") {
+      products(first: 1) {
+        nodes { id }
+      }
+    }
     products(first: 8, sortKey: BEST_SELLING) {
       nodes {
         id
