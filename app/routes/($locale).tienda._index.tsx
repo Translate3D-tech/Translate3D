@@ -7,14 +7,16 @@ import { SectionSeparator } from '~/components/SectionSeparator';
 export const meta: Route.MetaFunction = () => {
   return [
     { title: 'Translate3D | Tienda de Impresión 3D' },
-    { name: 'description', content: 'Explora la tienda de Translate3D: filamentos, resinas, modelos 3D, refacciones y todo lo que necesitas para impresión 3D en México.' },
+    { name: 'description', content: 'Explora la colección Maestr@ Cool, modelos 3D y artículos personalizados de Translate3D.' },
   ];
 };
 
 export async function loader(args: Route.LoaderArgs) {
   const { storefront } = args.context;
 
-  const { products, maestraCool } = await storefront.query(BEST_SELLERS_STORE_QUERY);
+  const { products, maestraCool } = await storefront.query(BEST_SELLERS_STORE_QUERY, {
+    cache: storefront.CacheShort(),
+  });
 
   return {
     bestSellers: products.nodes,
@@ -37,22 +39,6 @@ export default function TiendaIndex() {
       to: '/tienda/modelos-3d',
       imageSrc: '/tienda/modelos-3d.webp',
       rounded: showMaestraCool ? 'none' : 'left',
-    },
-    {
-      title: 'Filamentos',
-      to: '/tienda/filamentos',
-      imageSrc: '/tienda/filamentos.webp',
-    },
-    {
-      title: 'Resinas',
-      to: '/tienda/resinas',
-      imageSrc: '/tienda/resinas.webp',
-    },
-    {
-      title: 'Refacciones',
-      to: '/tienda/refacciones',
-      imageSrc: '/tienda/refacciones.webp',
-      rounded: 'right',
     },
   ];
 

@@ -152,14 +152,13 @@ export default function Article() {
               Galeria de productos
             </p>
             <h2 className="text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-dark">
-              Tienda de equipo y refacciones
+              Artículos personalizados
             </h2>
             <p className="text-sm font-medium normal-case leading-relaxed text-dark/70">
-              Descubre materiales, herramientas y accesorios para mantener tu
-              operacion de impresion 3D en marcha.
+              Descubre la colección Maestr@ Cool y encuentra un detalle hecho para ti.
             </p>
             <Button asChild variant="action">
-              <Link to="/tienda/refacciones" prefetch="intent">
+              <Link to="/tienda/coleccion-maestr-cool" prefetch="intent">
                 Ver productos
               </Link>
             </Button>

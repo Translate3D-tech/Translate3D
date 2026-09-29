@@ -41,7 +41,9 @@ export async function loader(args: Route.LoaderArgs) {
   // Await critical data and also fetch best sellers for the related section
   const [criticalData, bestSellersResult] = await Promise.all([
     loadCriticalData(args),
-    storefront.query(BEST_SELLERS_STORE_QUERY),
+    storefront.query(BEST_SELLERS_STORE_QUERY, {
+      cache: storefront.CacheShort(),
+    }),
   ]);
 
   return {
@@ -69,6 +71,7 @@ async function loadCriticalData({ context, params, request }: Route.LoaderArgs) 
         handle: productHandle,
         selectedOptions: getSelectedProductOptions(request),
       },
+      cache: storefront.CacheShort(),
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
@@ -133,9 +136,6 @@ export default function Product() {
       dropdown: [
         { label: 'Colección Maestr@ Cool', href: '/tienda/coleccion-maestr-cool' },
         { label: 'Modelos 3D', href: '/tienda/modelos-3d' },
-        { label: 'Filamentos', href: '/tienda/filamentos' },
-        { label: 'Resinas', href: '/tienda/resinas' },
-        { label: 'Refacciones', href: '/tienda/refacciones' },
       ].filter((item) => !item.href.endsWith(category)),
     },
     { label: 'Galería', href: `/tienda/${category}` },

@@ -21,7 +21,7 @@ import {
 
 export const meta: Route.MetaFunction = () => [
   { title: 'Translate3D | Buscar en tienda' },
-  { name: 'description', content: 'Encuentra filamentos, resinas, modelos 3D y refacciones en la tienda de Translate3D.' },
+  { name: 'description', content: 'Encuentra artículos personalizados y modelos 3D en la tienda de Translate3D.' },
 ];
 
 type SearchLoaderData =
@@ -90,7 +90,7 @@ export default function SearchPage() {
               Buscar en tienda
             </h1>
             <p className="mt-3 max-w-3xl text-base font-medium text-white/80">
-              Encuentra productos en todas las categorías: modelos 3D, filamentos, resinas y refacciones.
+              Encuentra artículos de Maestr@ Cool y modelos 3D en nuestra tienda.
             </p>
           </div>
 
@@ -546,4 +546,3 @@ async function predictiveSearch({
   const total = Object.values(items).reduce((acc: number, item: Array<unknown>) => acc + item.length, 0);
   return { type, term, result: { items, total } };
 }
-

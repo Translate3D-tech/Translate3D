@@ -102,6 +102,7 @@ async function loadCriticalData({ context, params, request }: Route.LoaderArgs) 
         reverse,
         filters
       },
+      cache: storefront.CacheShort(),
     }),
   ]);
 
@@ -148,9 +149,6 @@ export default function Collection() {
       dropdown: [
         { label: 'Colección Maestr@ Cool', href: '/tienda/coleccion-maestr-cool' },
         { label: 'Modelos 3D', href: '/tienda/modelos-3d' },
-        { label: 'Filamentos', href: '/tienda/filamentos' },
-        { label: 'Resinas', href: '/tienda/resinas' },
-        { label: 'Refacciones', href: '/tienda/refacciones' },
       ].filter((item) => item.label.toLowerCase() !== collection.title.toLowerCase()),
     },
     { label: 'Galería', current: true },
@@ -350,14 +348,8 @@ function getCategoryDescription(category: string) {
   const descriptions: { [key: string]: string } = {
     'coleccion-maestr-cool':
       'Artículos impresos en 3D para maestras, maestros y salones de clase. Elige el modelo y comparte tus detalles de personalización antes de agregarlo al carrito.',
-    resinas:
-      'Te ofrecemos una amplia variedad de resinas para tus impresoras 3D. Elige la que mejor se adapte a tus necesidades y preferencias. Contamos con una amplia gama de materiales, colores, estilos y tamaños para ir contigo sea cual sea el caso de uso que tengas.',
-    filamentos:
-      'Te ofrecemos una amplia variedad de filamentos para tus impresoras 3D. Elige el que mejor se adapte a tus necesidades y preferencias. Contamos con una amplia gama de materiales, colores, estilos y tamaños para ir contigo sea cual sea el caso de uso que tengas.',
     'modelos-3d':
       'Encuentra el modelo pre-hecho perfecto para ti. Personalízalo a tu gusto: ajusta su tamaño, color, materiales y textura. Juega con la escala para adaptarlo a tus necesidades. También puedes comprar el modelo en formato digital o descargar algunos gratis de nuestra biblioteca.',
-    refacciones:
-      'Encuentra todas las refacciones originales que necesitas para mantener tu impresora 3D en las mejores condiciones o también para ese upgrade que necesitas. Ofrecemos piezas de repuesto directas del fabricante y de alta calidad para las marcas más populares.',
   };
   return descriptions[category] || '';
 }

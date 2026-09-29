@@ -15,10 +15,10 @@ import { SectionSeparator } from '~/components/SectionSeparator';
 
 export const meta: Route.MetaFunction = () => {
   return [
-    { title: 'Translate3D | Impresión 3D, Filamentos, Resinas y Modelado' },
-    { name: 'description', content: 'Translate3D: tu tienda especializada en impresión 3D en México. Filamentos, resinas, refacciones, modelos 3D y servicios profesionales de impresión y modelado. Tus ideas, en tus manos.' },
-    { property: 'og:title', content: 'Translate3D | Impresión 3D, Filamentos, Resinas y Modelado' },
-    { property: 'og:description', content: 'Tu tienda especializada en impresión 3D en México. Filamentos, resinas, refacciones y servicios profesionales.' },
+    { title: 'Translate3D | Artículos personalizados e impresión 3D' },
+    { name: 'description', content: 'Descubre la colección Maestr@ Cool, artículos personalizados y servicios de impresión y modelado 3D de Translate3D.' },
+    { property: 'og:title', content: 'Translate3D | Artículos personalizados e impresión 3D' },
+    { property: 'og:description', content: 'Artículos personalizados de Maestr@ Cool y servicios de impresión 3D en México.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:image', content: 'https://translate-3d.com/logos/translate3d.png' },
     { name: 'twitter:card', content: 'summary' },
@@ -51,9 +51,6 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
     .then((res) => {
       const nodes = [
         res.modelos3d,
-        res.filamentos,
-        res.resinas,
-        res.refacciones,
         res.maestraCool?.products.nodes.length ? res.maestraCool : null,
       ].filter(Boolean);
 
@@ -61,13 +58,10 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
 
       const fallbackImages: Record<string, string> = {
         'modelos-3d': '/tienda/modelos-3d.webp',
-        filamentos: '/tienda/filamentos.webp',
-        resinas: '/tienda/resinas.webp',
-        refacciones: '/tienda/refacciones.webp',
         'coleccion-maestr-cool': '/tienda/maestra-cool.jpeg',
       };
 
-      const orderedHandles = ['coleccion-maestr-cool', 'modelos-3d', 'filamentos', 'resinas', 'refacciones'];
+      const orderedHandles = ['coleccion-maestr-cool', 'modelos-3d'];
       const ordered = orderedHandles
         .map((handle) => {
           const c = byHandle.get(handle);
@@ -76,12 +70,7 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
             title: c.title,
             to: `/tienda/${c.handle}`,
             imageSrc: c.image?.url ?? fallbackImages[c.handle] ?? '/work.webp',
-            rounded:
-              handle === 'coleccion-maestr-cool'
-                ? 'left'
-                : handle === 'refacciones'
-                  ? 'right'
-                  : 'none',
+            rounded: handle === 'coleccion-maestr-cool' ? 'left' : 'right',
           } satisfies StoreCategory;
         })
         .filter(Boolean) as StoreCategory[];
@@ -217,15 +206,6 @@ const HOME_CATEGORIES_QUERY = `#graphql
   query HomeCategories($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
     modelos3d: collection(handle: "modelos-3d") {
-      ...CategoryCollection
-    }
-    filamentos: collection(handle: "filamentos") {
-      ...CategoryCollection
-    }
-    resinas: collection(handle: "resinas") {
-      ...CategoryCollection
-    }
-    refacciones: collection(handle: "refacciones") {
       ...CategoryCollection
     }
     maestraCool: collection(handle: "coleccion-maestr-cool") {

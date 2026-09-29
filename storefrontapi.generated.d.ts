@@ -452,27 +452,6 @@ export type HomeCategoriesQuery = {
       >;
     }
   >;
-  filamentos?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
-      image?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
-      >;
-    }
-  >;
-  resinas?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
-      image?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
-      >;
-    }
-  >;
-  refacciones?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
-      image?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
-      >;
-    }
-  >;
   maestraCool?: StorefrontAPI.Maybe<
     Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
       products: {nodes: Array<Pick<StorefrontAPI.Product, 'id'>>};
@@ -1426,7 +1405,7 @@ interface GeneratedQueryTypes {
     return: HomeFeaturedArticlesQuery;
     variables: HomeFeaturedArticlesQueryVariables;
   };
-  '#graphql\n  fragment CategoryCollection on Collection {\n    id\n    title\n    handle\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n  }\n\n  query HomeCategories($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    modelos3d: collection(handle: "modelos-3d") {\n      ...CategoryCollection\n    }\n    filamentos: collection(handle: "filamentos") {\n      ...CategoryCollection\n    }\n    resinas: collection(handle: "resinas") {\n      ...CategoryCollection\n    }\n    refacciones: collection(handle: "refacciones") {\n      ...CategoryCollection\n    }\n    maestraCool: collection(handle: "coleccion-maestr-cool") {\n      ...CategoryCollection\n      products(first: 1) {\n        nodes { id }\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment CategoryCollection on Collection {\n    id\n    title\n    handle\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n  }\n\n  query HomeCategories($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    modelos3d: collection(handle: "modelos-3d") {\n      ...CategoryCollection\n    }\n    maestraCool: collection(handle: "coleccion-maestr-cool") {\n      ...CategoryCollection\n      products(first: 1) {\n        nodes { id }\n      }\n    }\n  }\n': {
     return: HomeCategoriesQuery;
     variables: HomeCategoriesQueryVariables;
   };

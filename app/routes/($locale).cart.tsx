@@ -7,7 +7,7 @@ import { CartMain } from '~/components/CartMain';
 export const meta: Route.MetaFunction = () => {
   return [
     { title: 'Translate3D | Carrito' },
-    { name: 'description', content: 'Revisa tu carrito de compras en Translate3D. Completa tu pedido de filamentos, resinas, modelos 3D y más.' },
+    { name: 'description', content: 'Revisa tu carrito de Translate3D y completa tu pedido de artículos personalizados.' },
   ];
 };
 

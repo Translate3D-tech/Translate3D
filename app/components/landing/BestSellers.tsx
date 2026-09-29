@@ -37,9 +37,6 @@ type FilterKey = 'descuento' | 'nuevo' | 'disponible' | null;
 const PREFERRED_COLLECTION_HANDLES = new Set([
   'coleccion-maestr-cool',
   'modelos-3d',
-  'filamentos',
-  'resinas',
-  'refacciones',
 ]);
 
 function resolveCollectionHandle(product: BestSellerProduct) {

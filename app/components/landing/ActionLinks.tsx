@@ -7,9 +7,7 @@ const links = [
   { to: '/servicios', label: 'Servicios' },
   { to: '/blog', label: 'Blog' },
   { to: '/tienda/impresiones', label: 'Nuestras impresiones' },
-  { to: '/tienda/refacciones', label: 'Refacciones' },
-  { to: '/tienda/resinas', label: 'Resinas' },
-  { to: '/tienda/filamentos', label: 'Filamentos' },
+  { to: '/tienda/coleccion-maestr-cool', label: 'Colección Maestr@ Cool' },
 ];
 
 export function ActionLinks() {

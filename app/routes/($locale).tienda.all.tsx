@@ -8,7 +8,7 @@ import type { CollectionItemFragment } from 'storefrontapi.generated';
 export const meta: Route.MetaFunction = () => {
   return [
     { title: 'Translate3D | Todos los Productos' },
-    { name: 'description', content: 'Todos los productos disponibles en Translate3D. Encuentra filamentos PLA, ABS, PETG, resinas, modelos 3D listos para imprimir y refacciones.' },
+    { name: 'description', content: 'Conoce los artículos personalizados de Maestr@ Cool y los productos disponibles en Translate3D.' },
   ];
 };
 
@@ -35,6 +35,7 @@ async function loadCriticalData({ context, request }: Route.LoaderArgs) {
   const [{ products }] = await Promise.all([
     storefront.query(CATALOG_QUERY, {
       variables: { ...paginationVariables },
+      cache: storefront.CacheShort(),
     }),
     // The API handle might be localized, so redirect to the localized handle
   ]);
