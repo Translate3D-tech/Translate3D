@@ -11,6 +11,7 @@ import {
 } from '@shopify/hydrogen';
 import { ProductPrice } from '~/components/ProductPrice';
 import { ProductImage } from '~/components/ProductImage';
+import { ProductImageViewer } from '~/components/ProductImageViewer';
 import { ProductForm } from '~/components/ProductForm';
 import { TagChip } from '~/components/landing/TagChip';
 import { Breadcrumbs } from '~/components/ui/Breadcrumbs';
@@ -105,6 +106,7 @@ export default function Product() {
   const params = useParams();
   const category = params.handle || 'tienda';
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -127,12 +129,18 @@ export default function Product() {
   const displayedImage = images.find((image) => image.url === selectedImageUrl)
     ?? selectedVariant?.image
     ?? product.featuredImage;
+  const viewerImages = [...images];
+  if (displayedImage && !viewerImages.some((image) => image.url === displayedImage.url)) {
+    viewerImages.unshift(displayedImage);
+  }
 
   // Replicating legacy breadcrumb logic
   const breadcrumbData = [
     { label: 'Tienda', href: '/tienda' },
     {
-      label: category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' '),
+      label: category === 'coleccion-maestr-cool'
+        ? 'Colección Maestr@ Cool'
+        : category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' '),
       dropdown: [
         { label: 'Colección Maestr@ Cool', href: '/tienda/coleccion-maestr-cool' },
         { label: 'Modelos 3D', href: '/tienda/modelos-3d' },
@@ -159,7 +167,19 @@ export default function Product() {
               </h1>
 
               <div className="relative w-full isolate">
-                <ProductImage image={displayedImage} />
+                {displayedImage ? (
+                  <button
+                    type="button"
+                    onClick={() => setViewerIndex(viewerImages.findIndex((image) => image.url === displayedImage.url))}
+                    aria-label={`Ampliar imagen de ${title}`}
+                    className="group relative block w-full cursor-zoom-in rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    <ProductImage image={displayedImage} />
+                    <span className="absolute bottom-3 right-3 rounded-md bg-dark/85 px-3 py-1.5 text-xs font-extrabold uppercase text-light transition-colors group-hover:bg-primary">
+                      Ampliar imagen
+                    </span>
+                  </button>
+                ) : <ProductImage image={displayedImage} />}
                 {images.length > 1 && (
                   <div className="mt-3 flex gap-3 overflow-x-auto" aria-label="Imágenes del producto">
                     {images.map((image) => (
@@ -266,6 +286,14 @@ export default function Product() {
           <CallToAction />
         </div>
       </div>
+      {viewerIndex !== null && viewerImages.length > 0 && (
+        <ProductImageViewer
+          images={viewerImages}
+          initialIndex={viewerIndex}
+          title={title}
+          onClose={() => setViewerIndex(null)}
+        />
+      )}
 
       <Analytics.ProductView
         data={{

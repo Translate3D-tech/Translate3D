@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
-import { motion } from 'framer-motion';
 import { cn, focusStyle } from '~/lib/utils';
 
 export type StoreCategory = {
@@ -21,7 +20,7 @@ export function StoreCategories({ categories }: { categories: StoreCategory[] })
           Visita nuestra tienda
         </h2>
 
-        <div className="mt-8 flex flex-col gap-0 text-2xl font-extrabold md:flex-row min-h-[500px]">
+        <div className="mt-8 flex flex-col gap-6 text-2xl font-extrabold md:h-[clamp(32rem,42vw,46rem)] md:flex-row md:gap-0">
           {categories.map((category) => (
             <CategoryCard
               key={category.to}
@@ -52,13 +51,13 @@ function CategoryCard({
   onLeave: () => void;
 }) {
   return (
-    <motion.div
-      className="relative flex cursor-pointer flex-col gap-2.5 overflow-hidden outline-none min-w-0"
-      initial={{ flex: 1 }}
-      animate={{ flex: isHovered ? 2 : 1 }}
+    <div
+      className={cn(
+        'relative flex h-[min(85vw,30rem)] min-h-0 min-w-0 cursor-pointer flex-col gap-2.5 overflow-hidden md:h-full md:transition-[flex-grow] md:duration-300 md:ease-out',
+        isHovered ? 'md:flex-[2]' : 'md:flex-1',
+      )}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      transition={{ duration: 0.2, ease: "easeOut" }}
     >
       <Link
         to={category.to}
@@ -69,7 +68,7 @@ function CategoryCard({
         )}
       >
         <div
-          className={cn('relative flex-1 overflow-hidden transition-[border-radius] duration-200', {
+          className={cn('relative min-h-0 flex-1 overflow-hidden transition-[border-radius] duration-200', {
             'rounded-l-lg': category.rounded === 'left',
             'rounded-r-lg': category.rounded === 'right',
           })}
@@ -77,7 +76,7 @@ function CategoryCard({
           <img
             src={category.imageSrc}
             alt={category.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover/tile:scale-105"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
             loading="lazy"
           />
           <div className={cn(
@@ -86,11 +85,11 @@ function CategoryCard({
           )} />
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <p className="tracking-tight uppercase text-xl lg:text-3xl">{category.title}</p>
-          <ArrowRight className="h-6 w-6 transition-transform duration-200 group-hover/tile:translate-x-2" />
+        <div className="flex h-20 shrink-0 items-center gap-2.5">
+          <p className="min-w-0 line-clamp-2 tracking-tight uppercase text-xl md:text-[clamp(1rem,1.5vw,1.875rem)]">{category.title}</p>
+          <ArrowRight className="h-6 w-6 shrink-0 transition-transform duration-200 group-hover/tile:translate-x-2" />
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ export function TagChip({
   const isOut = lowerLabel.includes('sin') || lowerLabel.includes('out');
   const isLow = lowerLabel.includes('poca') || lowerLabel.includes('low');
 
-  let finalLabel = rawLabel.toUpperCase();
+  let finalLabel = lowerLabel === 'maestra-cool' ? 'MAESTR@ COOL' : rawLabel.toUpperCase();
   let dotColor = '';
 
   if (isStock) {
