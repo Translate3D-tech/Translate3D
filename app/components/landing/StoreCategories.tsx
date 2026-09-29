@@ -20,11 +20,12 @@ export function StoreCategories({ categories }: { categories: StoreCategory[] })
           Visita nuestra tienda
         </h2>
 
-        <div className="mt-8 flex flex-col gap-6 text-2xl font-extrabold md:h-[clamp(32rem,42vw,46rem)] md:flex-row md:gap-0">
+        <div className="mt-8 flex flex-col gap-6 text-2xl font-extrabold md:h-[clamp(32rem,42vw,46rem)] md:flex-row md:gap-0 md:[container-type:inline-size]">
           {categories.map((category) => (
             <CategoryCard
               key={category.to}
               category={category}
+              hasSibling={categories.length > 1}
               isHovered={hoveredTitle === category.title}
               isDimmed={hoveredTitle !== null && hoveredTitle !== category.title}
               onHover={() => setHoveredTitle(category.title)}
@@ -39,12 +40,14 @@ export function StoreCategories({ categories }: { categories: StoreCategory[] })
 
 function CategoryCard({
   category,
+  hasSibling,
   isHovered,
   isDimmed,
   onHover,
   onLeave
 }: {
   category: StoreCategory;
+  hasSibling: boolean;
   isHovered: boolean;
   isDimmed: boolean;
   onHover: () => void;
@@ -76,7 +79,10 @@ function CategoryCard({
           <img
             src={category.imageSrc}
             alt={category.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
+            className={cn(
+              'absolute left-1/2 top-0 h-full w-full max-w-none -translate-x-1/2 object-cover',
+              hasSibling ? 'md:w-[66.6667cqw]' : 'md:w-[100cqw]',
+            )}
             loading="lazy"
           />
           <div className={cn(
